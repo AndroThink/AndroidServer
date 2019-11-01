@@ -1,5 +1,7 @@
 # AndroidServer
 
+[![](https://jitpack.io/v/AndroThink/AndroidServer.svg)](https://jitpack.io/#AndroThink/AndroidServer)
+
 Java android library for creating a Multi-Threaded Http Server on android .
 
 ## Main Features
@@ -49,7 +51,7 @@ List<Route> routes = new ArrayList<>();
 // Add not authorized route ..
 routes.add(new Route("/",ServerHelper.METHOD.GET, new RouteCallBack() {
     @Override
-    public void onRequested(Request request, ResponseHandler responseHandler)throws IOException {
+    public void onRequested(Request request, ResponseHandler responseHandler) {
         responseHandler.sendJsonResponse("{\"status\":true,\"data\":\"Demo Response .\"}");
     }
 }));
@@ -57,7 +59,7 @@ routes.add(new Route("/",ServerHelper.METHOD.GET, new RouteCallBack() {
 // Add authorized route ..
 routes.add(new Route("/test",ServerHelper.METHOD.GET, true, new RouteCallBack() {
     @Override
-    public void onRequested(Request request, ResponseHandler responseHandler)throws IOException {
+    public void onRequested(Request request, ResponseHandler responseHandler) {
         String authKey = request.getApiKey();
         responseHandler.sendJsonResponse("{\"status\":true,\"data\":\"AthuKey " + authKey + ".\"}");
     }
@@ -67,7 +69,7 @@ routes.add(new Route("/test",ServerHelper.METHOD.GET, true, new RouteCallBack() 
 // Add file to Assets folder then pass is path .
 routes.add(new Route("/html",ServerHelper.METHOD.GET, new RouteCallBack() {
     @Override
-    public void onRequested(Request request, ResponseHandler responseHandler)throws IOException {
+    public void onRequested(Request request, ResponseHandler responseHandler) {
         responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.OK, "html/index.html");
     }
 }));
@@ -77,7 +79,7 @@ routes.add(new Route("/html",ServerHelper.METHOD.GET, new RouteCallBack() {
 // will be replaced with the text provided and so on ..
 routes.add(new Route("/htmlplaceholder",ServerHelper.METHOD.GET, new RouteCallBack() {
     @Override
-    public void onRequested(Request request, ResponseHandler responseHandler)throws IOException {
+    public void onRequested(Request request, ResponseHandler responseHandler) {
 
         Map<String, String> placeHolders = new HashMap<>();
         placeHolders.put("error_place_holder", "The text to be rendered");
