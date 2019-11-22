@@ -68,8 +68,6 @@ public class ResponseHandler {
             page = page.replace(key, (value != null ? value : ""));
         }
 
-        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, page.length());
-
         byte[] data = page.getBytes();
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
 
