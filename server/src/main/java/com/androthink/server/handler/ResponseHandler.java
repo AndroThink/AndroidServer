@@ -16,32 +16,30 @@ public class ResponseHandler {
     private final Context context;
     private final DataOutputStream responseStream;
 
-    public static ResponseHandler getInstance(Context context,DataOutputStream responseStream){
-        return new ResponseHandler(context,responseStream);
+    public static ResponseHandler getInstance(Context context, DataOutputStream responseStream) {
+        return new ResponseHandler(context, responseStream);
     }
 
-    private ResponseHandler(Context context,DataOutputStream responseStream){
+    private ResponseHandler(Context context, DataOutputStream responseStream) {
         this.context = context;
         this.responseStream = responseStream;
     }
 
     // JSON Responses ..
-    public void sendJsonResponse(String json)throws IOException{
-        if(json != null) {
-            byte[] data=json.getBytes("UTF-8");
-            sendResponseHeader(ServerHelper.RESPONSE_CODE.OK,  ServerHelper.CONTENT_TYPE.JSON, data.length);
-            this.responseStream.writeInt(data.length);
+    public void sendJsonResponse(String json) throws IOException {
+        if (json != null) {
+            byte[] data = json.getBytes("UTF-8");
+            sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.JSON, data.length);
             this.responseStream.write(data);
         }
         this.responseStream.flush();
         this.responseStream.close();
     }
 
-    public void sendJsonResponse(int code, String json)throws IOException{
-        if(json != null) {
-            byte[] data=json.getBytes("UTF-8");
-            sendResponseHeader(code,  ServerHelper.CONTENT_TYPE.JSON, data.length);
-            this.responseStream.writeInt(data.length);
+    public void sendJsonResponse(int code, String json) throws IOException {
+        if (json != null) {
+            byte[] data = json.getBytes("UTF-8");
+            sendResponseHeader(code, ServerHelper.CONTENT_TYPE.JSON, data.length);
             this.responseStream.write(data);
         }
         this.responseStream.flush();
@@ -49,38 +47,40 @@ public class ResponseHandler {
     }
 
     // HTML Response ..
-    public void sendHtmlFileResponse(int code,String filename) throws IOException {
+    public void sendHtmlFileResponse(int code, String filename) throws IOException {
 
-        String page = ServerHelper.getHtmlFromAsset(context,filename);
+        String page = ServerHelper.getHtmlFromAsset(context, filename);
 
-        byte[] data=page.getBytes("UTF-8");
-        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, data.length);
+        byte[] data = page.getBytes();
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
 
         this.responseStream.write(data);
         this.responseStream.flush();
         this.responseStream.close();
     }
 
-    public void sendHtmlFileResponse(int code, String filename,@NonNull Map<String,String> placeHolders) throws IOException {
+    public void sendHtmlFileResponse(int code, String filename, @NonNull Map<String, String> placeHolders) throws IOException {
 
-        String page = ServerHelper.getHtmlFromAsset(context,filename);
+        String page = ServerHelper.getHtmlFromAsset(context, filename);
         String value;
-        for (String key:placeHolders.keySet()) {
+        for (String key : placeHolders.keySet()) {
             value = placeHolders.get(key);
             page = page.replace(key, (value != null ? value : ""));
         }
 
-        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, page.length());
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, page.length());
 
-        byte[] data=page.getBytes("UTF-8");
-        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, data.length);
+        byte[] data = page.getBytes();
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
 
         this.responseStream.write(data);
         this.responseStream.flush();
         this.responseStream.close();
     }
 
-    public Context getContext(){ return this.context; }
+    public Context getContext() {
+        return this.context;
+    }
 
     // Response With Image (Response closed after image sent)
     public void sendImageResponse(@NonNull byte[] image) throws IOException {
@@ -94,7 +94,7 @@ public class ResponseHandler {
 
     public void sendSoundResponse(@NonNull byte[] sound) throws IOException {
 
-        sendResponseHeader(ServerHelper.RESPONSE_CODE.OK,ServerHelper.CONTENT_TYPE.MPEG,sound.length);
+        sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.MPEG, sound.length);
 
         responseStream.write(sound);
         responseStream.flush();
@@ -113,11 +113,11 @@ public class ResponseHandler {
         responseStream.flush();
     }
 
-    private String getResponseDetails(int code){
-        switch (code){
+    private String getResponseDetails(int code) {
+        switch (code) {
             case ServerHelper.RESPONSE_CODE.OK:
                 return "OK";
-            case ServerHelper.RESPONSE_CODE.BAD_REQUEST :
+            case ServerHelper.RESPONSE_CODE.BAD_REQUEST:
                 return "Bad Request";
             case ServerHelper.RESPONSE_CODE.UNAUTHORIZED:
                 return "Unauthorized";
@@ -143,11 +143,11 @@ public class ResponseHandler {
         this.responseStream.write(sb.getBytes());
     }
 
-    public void sendSocketHansShakeHeader(@NonNull Map<String,String>headers) throws IOException {
+    public void sendSocketHansShakeHeader(@NonNull Map<String, String> headers) throws IOException {
 
         String secSocketKey = "";
-        for (String head:headers.keySet()) {
-            if(head.equals(ServerHelper.MAIN_HEADERS.SEC_WEB_SOCKET_KEY)){
+        for (String head : headers.keySet()) {
+            if (head.equals(ServerHelper.MAIN_HEADERS.SEC_WEB_SOCKET_KEY)) {
                 secSocketKey = headers.get(head);
             }
         }
