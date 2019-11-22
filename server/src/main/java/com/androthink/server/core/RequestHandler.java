@@ -19,22 +19,22 @@ class RequestHandler {
     private final BufferedReader requestStream;
     private final Request request;
 
-    static RequestHandler getInstance(Request request,BufferedReader requestStream){
-        return new RequestHandler(request,requestStream);
+    static RequestHandler getInstance(Request request, BufferedReader requestStream) {
+        return new RequestHandler(request, requestStream);
     }
 
-    private RequestHandler(Request request,BufferedReader requestStream) {
+    private RequestHandler(Request request, BufferedReader requestStream) {
         this.requestStream = requestStream;
         this.request = request;
     }
 
-    Request extract() throws IOException ,JSONException{
+    Request extract() throws IOException, JSONException {
         String headerLine = requestStream.readLine(); // ===> POST / HTTP/1.1
 
-        if(headerLine == null)
+        if (headerLine == null)
             return request;
 
-        Scanner scanner =   new Scanner(headerLine);
+        Scanner scanner = new Scanner(headerLine);
 
         this.request.setMethod(scanner.next().toLowerCase());     //===> POST
         this.request.setRoutePath(scanner.next().toLowerCase()); // ===> /
@@ -43,24 +43,39 @@ class RequestHandler {
         scanner.close();
 
         // Headers ...
-        Map<String,String> requestHeaders = new HashMap<>();
+        Map<String, String> requestHeaders = new HashMap<>();
 
-        while((headerLine = requestStream.readLine()).length() != 0){
+        while ((headerLine = requestStream.readLine()).length() != 0) {
             scanner = new Scanner(headerLine);
 
-            String key = scanner.next().replace(":","");
+            String key = scanner.next().replace(":", "");
             StringBuilder value = new StringBuilder();
 
-            while (scanner.hasNext()){ value.append(scanner.next()); }
+            while (scanner.hasNext()) {
+                value.append(scanner.next());
+            }
 
             requestHeaders.put(key.toLowerCase(), value.toString());
 
             scanner.close();
         }
 
+        String cookies = requestHeaders.get("cookie");
+        if (cookies != null && !cookies.isEmpty()) {
+            Map<String, String> requestCookies = new HashMap<>();
+            String[] data = cookies.split(";");
+            for (String s : data) {
+                String[] cook = s.split("=");
+                if (cook.length == 2)
+                    requestCookies.put(cook[0], cook[1]);
+            }
+            request.setRequestCookies(requestCookies);
+            requestHeaders.remove("cookie");
+        }
+
         // Review Content Type & if Form-Data ==> get Boundary
         String contentTypeHeader = requestHeaders.get(ServerHelper.MAIN_HEADERS.CONTENT_TYPE);
-        if(contentTypeHeader != null && contentTypeHeader.toLowerCase().contains(ServerHelper.CONTENT_TYPE.FORM_DATA)) {
+        if (contentTypeHeader != null && contentTypeHeader.toLowerCase().contains(ServerHelper.CONTENT_TYPE.FORM_DATA)) {
             // multipart/form-data; boundary=--------------------------809476465016676300543428
             String[] data = contentTypeHeader.split(";");
             requestHeaders.put(ServerHelper.MAIN_HEADERS.CONTENT_TYPE, data[0]);
@@ -75,14 +90,14 @@ class RequestHandler {
         return request;
     }
 
-    private void extractPayload() throws IOException,JSONException{
+    private void extractPayload() throws IOException, JSONException {
         StringBuilder payload = new StringBuilder();
-        while(requestStream.ready()){
+        while (requestStream.ready()) {
             payload.append((char) requestStream.read());
         }
         String contentType = request.getHeaders().get(ServerHelper.MAIN_HEADERS.CONTENT_TYPE);
 
-        if(contentType != null){
+        if (contentType != null) {
             Object requestPayload = null;
 
             switch (contentType) {
@@ -94,11 +109,11 @@ class RequestHandler {
                     break;
                 case ServerHelper.CONTENT_TYPE.FORM_URL_ENCODED_DATA:
                     String[] formParams = payload.toString().split("&");
-                    if(formParams.length>0) {
+                    if (formParams.length > 0) {
                         requestPayload = new JSONObject();
                         for (String formParam : formParams) {
                             String[] details = formParam.split("=");
-                            if(details.length == 2) {
+                            if (details.length == 2) {
                                 ((JSONObject) requestPayload).put(details[0], details[1]);
                             }
                         }

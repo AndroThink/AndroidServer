@@ -41,16 +41,24 @@ class RoutesHandler {
 
         if (route != null) {
             if (route.isAuth()) {
-                String authKey = getAuthorizationKey(request.getHeaders());
-                if (authKey != null) {
-                    request.setApiKey(authKey);
-                    route.getCallBack().onRequested(request, responseHandler);
+                if (isApiRoute(request.getRoutePath())) {
+                    String authKey = getAuthorizationKey(request.getHeaders());
+                    if (authKey != null) {
+                        request.setApiKey(authKey);
+                        route.getCallBack().onRequested(request, responseHandler);
+                        return;
+                    }
+
+                    responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,
+                            "{\"status\":false,\"error\":\"Error 401 UnAuthorized !\"}");
                 } else {
-                    if (isApiRoute(request.getRoutePath()))
-                        responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,
-                                "{\"status\":false,\"error\":\"Error 401 UnAuthorized !\"}");
-                    else
+                    String authKey = getAuthorizationToken(request.getRequestCookies());
+                    if (authKey != null) {
+                        request.setApiKey(authKey);
+                        route.getCallBack().onRequested(request, responseHandler);
+                    } else
                         responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED, "html/login.html");
+
                 }
             } else
                 route.getCallBack().onRequested(request, responseHandler);
@@ -135,6 +143,16 @@ class RoutesHandler {
         for (String key : headers.keySet()) {
             if (key.equals(ServerHelper.MAIN_HEADERS.AUTHORIZATION))
                 return headers.get(key);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private String getAuthorizationToken(@NonNull Map<String, String> cookies) {
+        for (String key : cookies.keySet()) {
+            if (key.equals("token"))
+                return cookies.get(key);
         }
 
         return null;

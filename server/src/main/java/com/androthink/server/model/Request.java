@@ -17,11 +17,13 @@ public class Request {
 
     private Object requestPayload;
     private Map<String,String> requestHeaders;
+    private Map<String,String> requestCookies;
 
     public Request(String requestId,RequestCallBack callBack){
         this.requestId = requestId;
         this.requestCallBack = callBack;
         this.requestHeaders = new HashMap<>();
+        this.requestCookies = new HashMap<>();
     }
 
     public String getApiKey() {
@@ -78,6 +80,14 @@ public class Request {
 
     public void setHeaders(Map<String, String> requestHeaders) {
         this.requestHeaders = requestHeaders;
+    }
+
+    public void setRequestCookies(Map<String, String> requestCookies) {
+        this.requestCookies = requestCookies;
+    }
+
+    public Map<String, String> getRequestCookies() {
+        return requestCookies;
     }
 
     public void onError(){
