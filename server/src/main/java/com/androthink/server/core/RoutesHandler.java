@@ -107,7 +107,7 @@ class RoutesHandler {
     private Route getRouteWithStartWith(String method, String path) {
 
         for (Route route : routeList) {
-            if (route.isRouteStartWith() && route.getMethod().equals(method) && route.getPath().startsWith(path))
+            if (route.isRouteStartWith() && route.getMethod().equals(method) && path.startsWith(route.getPath()))
                 return route;
         }
 

@@ -25,6 +25,10 @@ public class ResponseHandler {
         this.responseStream = responseStream;
     }
 
+    /**
+     * @param json Json to be sent as Response .
+     * @throws IOException throws exception if response channel closed .
+     */
     // JSON Responses ..
     public void sendJsonResponse(String json) throws IOException {
         if (json != null) {
@@ -36,6 +40,11 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    /**
+     * @param json          Json to be sent as Response .
+     * @param customHeaders headers to be sent with the response .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendJsonResponse(String json, Map<String, String> customHeaders) throws IOException {
         if (json != null) {
             byte[] data = json.getBytes("UTF-8");
@@ -46,6 +55,12 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    /**
+     * @param code          custom response code
+     * @param json          Json to be sent as Response .
+     * @param customHeaders headers to be sent with the response .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendJsonResponse(int code, String json, Map<String, String> customHeaders) throws IOException {
         if (json != null) {
             byte[] data = json.getBytes("UTF-8");
@@ -56,6 +71,11 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    /**
+     * @param code custom response code
+     * @param json Json to be sent as Response .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendJsonResponse(int code, String json) throws IOException {
         if (json != null) {
             byte[] data = json.getBytes("UTF-8");
@@ -66,19 +86,30 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    /**
+     * @param code          custom response code
+     * @param filename      filename for the html file to be sent .
+     * @param customHeaders headers to be sent with the response .
+     * @throws IOException throws exception if response channel closed .
+     */
     // HTML Response ..
-    public void sendHtmlFileResponseWithCustomHeader(int code, String filename,Map<String,String>customHeaders) throws IOException {
+    public void sendHtmlFileResponseWithCustomHeader(int code, String filename, Map<String, String> customHeaders) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
 
         byte[] data = page.getBytes();
-        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length,customHeaders);
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length, customHeaders);
 
         this.responseStream.write(data);
         this.responseStream.flush();
         this.responseStream.close();
     }
 
+    /**
+     * @param code     custom response code
+     * @param filename filename for the html file to be sent .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendHtmlFileResponse(int code, String filename) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
@@ -91,6 +122,12 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    /**
+     * @param code         custom response code
+     * @param filename     filename for the html file to be sent .
+     * @param placeHolders data values to be replaced with placeholders in the file to be sent with the response .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendHtmlFileResponse(int code, String filename, @NonNull Map<String, String> placeHolders) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
@@ -108,7 +145,14 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
-    public void sendHtmlFileResponse(int code, String filename, @NonNull Map<String, String> placeHolders,Map<String,String>customHeaders) throws IOException {
+    /**
+     * @param code          custom response code
+     * @param filename      filename for the html file to be sent .
+     * @param placeHolders  data values to be replaced with placeholders in the file to be sent with the response .
+     * @param customHeaders headers to be sent with the response .
+     * @throws IOException throws exception if response channel closed .
+     */
+    public void sendHtmlFileResponse(int code, String filename, @NonNull Map<String, String> placeHolders, Map<String, String> customHeaders) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
         String value;
@@ -118,7 +162,7 @@ public class ResponseHandler {
         }
 
         byte[] data = page.getBytes();
-        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length,customHeaders);
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length, customHeaders);
 
         this.responseStream.write(data);
         this.responseStream.flush();
@@ -129,6 +173,10 @@ public class ResponseHandler {
         return this.context;
     }
 
+    /**
+     * @param image image to be sent .
+     * @throws IOException throws exception if response channel closed .
+     */
     // Response With Image (Response closed after image sent)
     public void sendImageResponse(@NonNull byte[] image) throws IOException {
 
@@ -139,6 +187,10 @@ public class ResponseHandler {
         responseStream.close();
     }
 
+    /**
+     * @param sound sound to be sent .
+     * @throws IOException throws exception if response channel closed .
+     */
     public void sendSoundResponse(@NonNull byte[] sound) throws IOException {
 
         sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.MPEG, sound.length);

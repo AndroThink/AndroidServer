@@ -9,6 +9,11 @@ public class Route {
     private boolean isRouteStartWith;
     private RouteCallBack callBack;
 
+    /**
+     * @param path     route path
+     * @param method   request method
+     * @param callBack response callback
+     */
     public Route(String path, String method, RouteCallBack callBack) {
         this.path = path;
         this.isAuth = false;
@@ -17,7 +22,13 @@ public class Route {
         this.callBack = callBack;
     }
 
-    public Route(String path, String method,boolean isAuth, RouteCallBack callBack) {
+    /**
+     * @param path     route path
+     * @param method   request method
+     * @param isAuth   is authenticated
+     * @param callBack response callback
+     */
+    public Route(String path, String method, boolean isAuth, RouteCallBack callBack) {
         this.path = path;
         this.isAuth = isAuth;
         this.method = method;
@@ -25,6 +36,13 @@ public class Route {
         this.isRouteStartWith = false;
     }
 
+    /**
+     * @param path             route path
+     * @param method           request method
+     * @param isAuth           is authenticated
+     * @param isRouteStartWith is route paths is a start with
+     * @param callBack         response callback
+     */
     public Route(String path, String method, boolean isAuth, boolean isRouteStartWith, RouteCallBack callBack) {
         this.path = path;
         this.method = method;
@@ -41,19 +59,35 @@ public class Route {
         isRouteStartWith = routeStartWith;
     }
 
-    public String getPath() { return path; }
+    public String getPath() {
+        return path;
+    }
 
-    public void setPath(String path) { this.path = path; }
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-    public String getMethod() { return method; }
+    public String getMethod() {
+        return method;
+    }
 
-    public void setMethod(String method) { this.method = method; }
+    public void setMethod(String method) {
+        this.method = method;
+    }
 
-    public boolean isAuth() { return isAuth; }
+    public boolean isAuth() {
+        return isAuth;
+    }
 
-    public void setAuth(boolean auth) { isAuth = auth; }
+    public void setAuth(boolean auth) {
+        isAuth = auth;
+    }
 
-    public RouteCallBack getCallBack() { return callBack; }
+    public RouteCallBack getCallBack() {
+        return callBack;
+    }
 
-    public void setCallBack(RouteCallBack callBack) { this.callBack = callBack; }
+    public void setCallBack(RouteCallBack callBack) {
+        this.callBack = callBack;
+    }
 }
