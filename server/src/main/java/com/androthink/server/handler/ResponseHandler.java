@@ -172,12 +172,13 @@ public class ResponseHandler {
 
     /**
      * @param filename     filename for the html file to be sent .
+     * @param contentType response content type .
      * @throws IOException throws exception if response channel closed .
      */
-    public void sendResourceFileResponse(String filename) throws IOException {
+    public void sendResourceFileResponse(String filename, String contentType) throws IOException {
 
         BufferedInputStream file = ServerHelper.getResourceFromAsset(context, filename);
-        sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.HTML, file.available());
+        sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, contentType, file.available());
 
         int u;
         byte[] buffer = new byte[1024];

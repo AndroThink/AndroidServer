@@ -58,7 +58,11 @@ public class ServerHelper {
         public static final String FORM_URL_ENCODED_DATA = "application/x-www-form-urlencoded";
 
         public static final String HTML = "text/html";
+        public static final String CSS = "text/css";
         public static final String TEXT = "text/plain";
+
+        public static final String TEXT_JAVA_SCRIPT = "text/javascript";
+        public static final String JAVA_SCRIPT = "application/javascript";
 
         public static final String PNG  = "image/png";
         public static final String GIF  = "image/gif";
