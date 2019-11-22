@@ -36,6 +36,26 @@ public class ResponseHandler {
         this.responseStream.close();
     }
 
+    public void sendJsonResponse(String json, Map<String, String> customHeaders) throws IOException {
+        if (json != null) {
+            byte[] data = json.getBytes("UTF-8");
+            sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.JSON, data.length, customHeaders);
+            this.responseStream.write(data);
+        }
+        this.responseStream.flush();
+        this.responseStream.close();
+    }
+
+    public void sendJsonResponse(int code, String json, Map<String, String> customHeaders) throws IOException {
+        if (json != null) {
+            byte[] data = json.getBytes("UTF-8");
+            sendResponseHeader(code, ServerHelper.CONTENT_TYPE.JSON, data.length, customHeaders);
+            this.responseStream.write(data);
+        }
+        this.responseStream.flush();
+        this.responseStream.close();
+    }
+
     public void sendJsonResponse(int code, String json) throws IOException {
         if (json != null) {
             byte[] data = json.getBytes("UTF-8");
@@ -47,6 +67,18 @@ public class ResponseHandler {
     }
 
     // HTML Response ..
+    public void sendHtmlFileResponseWithCustomHeader(int code, String filename,Map<String,String>customHeaders) throws IOException {
+
+        String page = ServerHelper.getHtmlFromAsset(context, filename);
+
+        byte[] data = page.getBytes();
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length,customHeaders);
+
+        this.responseStream.write(data);
+        this.responseStream.flush();
+        this.responseStream.close();
+    }
+
     public void sendHtmlFileResponse(int code, String filename) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
@@ -70,6 +102,23 @@ public class ResponseHandler {
 
         byte[] data = page.getBytes();
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
+
+        this.responseStream.write(data);
+        this.responseStream.flush();
+        this.responseStream.close();
+    }
+
+    public void sendHtmlFileResponse(int code, String filename, @NonNull Map<String, String> placeHolders,Map<String,String>customHeaders) throws IOException {
+
+        String page = ServerHelper.getHtmlFromAsset(context, filename);
+        String value;
+        for (String key : placeHolders.keySet()) {
+            value = placeHolders.get(key);
+            page = page.replace(key, (value != null ? value : ""));
+        }
+
+        byte[] data = page.getBytes();
+        sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length,customHeaders);
 
         this.responseStream.write(data);
         this.responseStream.flush();
@@ -137,6 +186,20 @@ public class ResponseHandler {
         String sb = "HTTP/1.1 " + code + " " + getResponseDetails(code) + "\r\n" +
                 "Date: " + new Date().toString() + "\r\n" +
                 ServerHelper.MAIN_HEADERS.CONTENT_TYPE + ": " + contentType + "\r\n" +
+                ((contentLength != -1) ? ServerHelper.MAIN_HEADERS.CONTENT_LENGTH + ": " + contentLength + "\r\n\r\n" : "\r\n");
+        this.responseStream.write(sb.getBytes());
+    }
+
+    private void sendResponseHeader(int code, String contentType, long contentLength, @NonNull Map<String, String> customHeaders) throws IOException {
+
+        String sb = "HTTP/1.1 " + code + " " + getResponseDetails(code) + "\r\n" +
+                "Date: " + new Date().toString() + "\r\n";
+
+        for (String key : customHeaders.keySet()) {
+            sb += key + ": " + customHeaders.get(key) + "\r\n";
+        }
+
+        sb += ServerHelper.MAIN_HEADERS.CONTENT_TYPE + ": " + contentType + "\r\n" +
                 ((contentLength != -1) ? ServerHelper.MAIN_HEADERS.CONTENT_LENGTH + ": " + contentLength + "\r\n\r\n" : "\r\n");
         this.responseStream.write(sb.getBytes());
     }

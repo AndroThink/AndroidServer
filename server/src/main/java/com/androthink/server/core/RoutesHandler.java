@@ -20,32 +20,32 @@ class RoutesHandler {
 
     private List<Route> routeList;
 
-    static RoutesHandler getInstance(){
-        if(routesHandler == null)
+    static RoutesHandler getInstance() {
+        if (routesHandler == null)
             routesHandler = new RoutesHandler();
 
         return routesHandler;
     }
 
-    private RoutesHandler(){
+    private RoutesHandler() {
         this.routeList = new ArrayList<>();
     }
 
-    void Handle(Request request, ResponseHandler responseHandler)throws IOException{
+    void Handle(Request request, ResponseHandler responseHandler) throws IOException {
 
-        if(!isAllowedMethod(request.getMethod()))
+        if (!isAllowedMethod(request.getMethod()))
             responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.METHOD_NOT_ALLOWED,
                     "{\"status\":false,\"error\":\"Method (" + request.getMethod() + ") Not Allowed!\"}");
 
-        Route route = getRoute(request.getMethod(),request.getRoutePath());
+        Route route = getRoute(request.getMethod(), request.getRoutePath());
 
-        if(route != null) {
+        if (route != null) {
             if (route.isAuth()) {
                 String authKey = getAuthorizationKey(request.getHeaders());
-                if(authKey != null){
+                if (authKey != null) {
                     request.setApiKey(authKey);
-                    route.getCallBack().onRequested(request,responseHandler);
-                }else{
+                    route.getCallBack().onRequested(request, responseHandler);
+                } else {
                     if (isApiRoute(request.getRoutePath()))
                         responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,
                                 "{\"status\":false,\"error\":\"Error 401 UnAuthorized !\"}");
@@ -53,22 +53,28 @@ class RoutesHandler {
                         responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED, "html/login.html");
                 }
             } else
-                route.getCallBack().onRequested(request,responseHandler);
-        }else {
-            if(request.getMethod().equals(ServerHelper.METHOD.GET)){
-                if(request.getRoutePath().startsWith("/images/")){
+                route.getCallBack().onRequested(request, responseHandler);
+        } else {
+            if (request.getMethod().equals(ServerHelper.METHOD.GET)) {
+                if (request.getRoutePath().startsWith("/images/")) {
                     responseHandler.sendImageResponse(ServerHelper
                             .getFileFromAssets(responseHandler.getContext(),
                                     request.getRoutePath().replace("/images/", "img/")));
 
                     return;
-                }else if(request.getRoutePath().startsWith("/sounds/")){
+                } else if (request.getRoutePath().startsWith("/sounds/")) {
                     responseHandler.sendImageResponse(ServerHelper
                             .getFileFromAssets(responseHandler.getContext(),
                                     request.getRoutePath().replace("/sounds/", "sound/")));
 
                     return;
                 }
+            }
+
+            Route startedWithRoute = getRouteWithStartWith(request.getMethod(), request.getRoutePath());
+            if (startedWithRoute != null) {
+                startedWithRoute.getCallBack().onRequested(request, responseHandler);
+                return;
             }
 
             if (isApiRoute(request.getRoutePath()))
@@ -82,22 +88,33 @@ class RoutesHandler {
         }
     }
 
-    void applyRoutes(List<Route> routeList){
+    void applyRoutes(List<Route> routeList) {
         this.routeList = routeList;
     }
 
     @Nullable
-    private Route getRoute(String method,String path){
+    private Route getRoute(String method, String path) {
 
-        for (Route route:routeList) {
-            if(route.getMethod().equals(method) && route.getPath().equals(path))
+        for (Route route : routeList) {
+            if (route.getMethod().equals(method) && route.getPath().equals(path))
                 return route;
         }
 
         return null;
     }
 
-    private boolean isAllowedMethod(@NonNull String method){
+    @Nullable
+    private Route getRouteWithStartWith(String method, String path) {
+
+        for (Route route : routeList) {
+            if (route.isRouteStartWith() && route.getMethod().equals(method) && route.getPath().startsWith(path))
+                return route;
+        }
+
+        return null;
+    }
+
+    private boolean isAllowedMethod(@NonNull String method) {
         switch (method) {
             case ServerHelper.METHOD.GET:
             case ServerHelper.METHOD.POST:
@@ -109,14 +126,14 @@ class RoutesHandler {
         }
     }
 
-    private boolean isApiRoute(@NonNull String path){
+    private boolean isApiRoute(@NonNull String path) {
         return path.startsWith("/api/v" + ServerHelper.API_VERSION);
     }
 
     @Nullable
-    private String getAuthorizationKey(@NonNull Map<String,String> headers){
-        for(String key : headers.keySet()){
-            if(key.equals(ServerHelper.MAIN_HEADERS.AUTHORIZATION))
+    private String getAuthorizationKey(@NonNull Map<String, String> headers) {
+        for (String key : headers.keySet()) {
+            if (key.equals(ServerHelper.MAIN_HEADERS.AUTHORIZATION))
                 return headers.get(key);
         }
 
