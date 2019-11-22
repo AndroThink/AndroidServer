@@ -27,7 +27,7 @@ class ServerRequestThread extends Thread {
     ServerRequestThread(Context context, Socket socket, String requestId, RequestCallBack requestCallBack) {
 
         this.context = context;
-        this.request = new Request(requestId,requestCallBack);
+        this.request = new Request(requestId, requestCallBack);
         this.clientSocket = socket;
 
         start();
@@ -38,7 +38,7 @@ class ServerRequestThread extends Thread {
         try {
             responseHandler = ResponseHandler
                     .getInstance(context, new DataOutputStream(clientSocket.getOutputStream()));
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -46,18 +46,18 @@ class ServerRequestThread extends Thread {
             request = RequestHandler.getInstance(request,
                     new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))).extract();
             // Handle Request ==> Response ..
-            RoutesHandler.getInstance().Handle(request,responseHandler);
-        }
-        catch (IOException e) {
+            RoutesHandler.getInstance().Handle(request, responseHandler);
+        } catch (IOException e) {
             try {
                 if (responseHandler != null)
                     responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND,
-                            "{\"status\":false,\"error\":\"FileNotFound : " + e.toString()+ "\"}");
-            }catch (IOException ex){ ex.printStackTrace(); }
+                            "{\"status\":false,\"error\":\"FileNotFound : " + e.toString().replace("java.io.FileNotFoundException:", "") + "\"}");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
             e.printStackTrace();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             try {
                 if (responseHandler != null) {
                     String route = request.getRoutePath();
@@ -69,14 +69,16 @@ class ServerRequestThread extends Thread {
                         responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND, "html/500.html", placeHolders);
                     }
                 }
-            }catch (IOException ex){ ex.printStackTrace(); }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
             close();
         }
     }
 
-    void close(){
+    void close() {
         if (this.clientSocket != null) {
             try {
                 if (!this.clientSocket.isClosed())
@@ -89,5 +91,7 @@ class ServerRequestThread extends Thread {
         request.onComplete();
     }
 
-    Request getRequest(){return this.request;}
+    Request getRequest() {
+        return this.request;
+    }
 }

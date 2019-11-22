@@ -28,8 +28,10 @@ public class ResponseHandler {
     // JSON Responses ..
     public void sendJsonResponse(String json)throws IOException{
         if(json != null) {
-            sendResponseHeader(ServerHelper.RESPONSE_CODE.OK,  ServerHelper.CONTENT_TYPE.JSON, json.length());
-            this.responseStream.write(json.getBytes());
+            byte[] data=json.getBytes("UTF-8");
+            sendResponseHeader(ServerHelper.RESPONSE_CODE.OK,  ServerHelper.CONTENT_TYPE.JSON, data.length);
+            this.responseStream.writeInt(data.length);
+            this.responseStream.write(data);
         }
         this.responseStream.flush();
         this.responseStream.close();
@@ -37,8 +39,10 @@ public class ResponseHandler {
 
     public void sendJsonResponse(int code, String json)throws IOException{
         if(json != null) {
-            sendResponseHeader(code, ServerHelper.CONTENT_TYPE.JSON, json.length());
-            this.responseStream.write(json.getBytes());
+            byte[] data=json.getBytes("UTF-8");
+            sendResponseHeader(code,  ServerHelper.CONTENT_TYPE.JSON, data.length);
+            this.responseStream.writeInt(data.length);
+            this.responseStream.write(data);
         }
         this.responseStream.flush();
         this.responseStream.close();
@@ -48,9 +52,11 @@ public class ResponseHandler {
     public void sendHtmlFileResponse(int code,String filename) throws IOException {
 
         String page = ServerHelper.getHtmlFromAsset(context,filename);
-        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, page.length());
 
-        this.responseStream.write(page.getBytes());
+        byte[] data=page.getBytes("UTF-8");
+        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, data.length);
+
+        this.responseStream.write(data);
         this.responseStream.flush();
         this.responseStream.close();
     }
@@ -66,7 +72,10 @@ public class ResponseHandler {
 
         sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, page.length());
 
-        this.responseStream.write(page.getBytes());
+        byte[] data=page.getBytes("UTF-8");
+        sendResponseHeader( code, ServerHelper.CONTENT_TYPE.HTML, data.length);
+
+        this.responseStream.write(data);
         this.responseStream.flush();
         this.responseStream.close();
     }
