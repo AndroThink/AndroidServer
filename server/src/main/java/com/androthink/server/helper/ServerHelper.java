@@ -8,6 +8,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.RawRes;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,6 +91,10 @@ public class ServerHelper {
 
         reader.close();
         return builder.toString();
+    }
+
+    public static BufferedInputStream getResourceFromAsset(@NonNull Context context,String filename)throws IOException {
+       return new BufferedInputStream(context.getAssets().open(filename));
     }
 
     @NonNull

@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.androthink.server.helper.ServerHelper;
 
+import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -165,6 +166,25 @@ public class ResponseHandler {
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length, customHeaders);
 
         this.responseStream.write(data);
+        this.responseStream.flush();
+        this.responseStream.close();
+    }
+
+    /**
+     * @param filename     filename for the html file to be sent .
+     * @throws IOException throws exception if response channel closed .
+     */
+    public void sendResourceFileResponse(String filename) throws IOException {
+
+        BufferedInputStream file = ServerHelper.getResourceFromAsset(context, filename);
+        sendResponseHeader(ServerHelper.RESPONSE_CODE.OK, ServerHelper.CONTENT_TYPE.HTML, file.available());
+
+        int u;
+        byte[] buffer = new byte[1024];
+        while ((u = file.read(buffer, 0, buffer.length)) != -1) {
+            this.responseStream.write(buffer, 0, u);
+        }
+        file.close();
         this.responseStream.flush();
         this.responseStream.close();
     }
