@@ -97,7 +97,7 @@ public class ResponseHandler {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
 
-        byte[] data = page.getBytes();
+        byte[] data = page.getBytes("UTF-8");
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length, customHeaders);
 
         this.responseStream.write(data);
@@ -114,7 +114,7 @@ public class ResponseHandler {
 
         String page = ServerHelper.getHtmlFromAsset(context, filename);
 
-        byte[] data = page.getBytes();
+        byte[] data = page.getBytes("UTF-8");
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
 
         this.responseStream.write(data);
@@ -137,7 +137,7 @@ public class ResponseHandler {
             page = page.replace(key, (value != null ? value : ""));
         }
 
-        byte[] data = page.getBytes();
+        byte[] data = page.getBytes("UTF-8");
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length);
 
         this.responseStream.write(data);
@@ -161,7 +161,7 @@ public class ResponseHandler {
             page = page.replace(key, (value != null ? value : ""));
         }
 
-        byte[] data = page.getBytes();
+        byte[] data = page.getBytes("UTF-8");
         sendResponseHeader(code, ServerHelper.CONTENT_TYPE.HTML, data.length, customHeaders);
 
         this.responseStream.write(data);
