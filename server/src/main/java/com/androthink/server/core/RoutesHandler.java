@@ -57,7 +57,7 @@ class RoutesHandler {
                         request.setApiKey(authKey);
                         route.getCallBack().onRequested(request, responseHandler);
                     } else
-                        responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED, "html/login.html");
+                        responseHandler.sendAssetFile(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,ServerHelper.CONTENT_TYPE.HTML, "html/login.html");
 
                 }
             } else
@@ -65,15 +65,13 @@ class RoutesHandler {
         } else {
             if (request.getMethod().equals(ServerHelper.METHOD.GET)) {
                 if (request.getRoutePath().startsWith("/images/")) {
-                    responseHandler.sendImageResponse(ServerHelper
-                            .getFileFromAssets(responseHandler.getContext(),
-                                    request.getRoutePath().replace("/images/", "img/")));
+                    responseHandler.sendAssetMediaFile(ServerHelper.RESPONSE_CODE.OK,ServerHelper.CONTENT_TYPE.JPEG,
+                                    request.getRoutePath().replace("/images/", "img/"));
 
                     return;
                 } else if (request.getRoutePath().startsWith("/sounds/")) {
-                    responseHandler.sendImageResponse(ServerHelper
-                            .getFileFromAssets(responseHandler.getContext(),
-                                    request.getRoutePath().replace("/sounds/", "sound/")));
+                    responseHandler.sendAssetMediaFile(ServerHelper.RESPONSE_CODE.OK,ServerHelper.CONTENT_TYPE.MPEG,
+                                    request.getRoutePath().replace("/sounds/", "sound/"));
 
                     return;
                 }
@@ -91,7 +89,7 @@ class RoutesHandler {
             else {
                 Map<String, String> placeHolders = new HashMap<>();
                 placeHolders.put("page_place_holder", "" + request.getRoutePath());
-                responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND, "html/404.html", placeHolders);
+                responseHandler.sendAssetFileWithPlaceHolder(ServerHelper.RESPONSE_CODE.NOT_FOUND,ServerHelper.CONTENT_TYPE.HTML ,"html/404.html", placeHolders);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.androthink.server.core;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import com.androthink.server.callback.RequestCallBack;
 import com.androthink.server.handler.ResponseHandler;
@@ -57,6 +58,16 @@ class ServerRequestThread extends Thread {
             }
 
             e.printStackTrace();
+        } catch (Resources.NotFoundException e) {
+            try {
+                if (responseHandler != null)
+                    responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND,
+                            "{\"status\":false,\"error\":\"FileNotFound : " + e.toString() + "\"}");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            e.printStackTrace();
         } catch (Exception e) {
             try {
                 if (responseHandler != null) {
@@ -66,7 +77,7 @@ class ServerRequestThread extends Thread {
                     else {
                         Map<String, String> placeHolders = new HashMap<>();
                         placeHolders.put("error_place_holder", "" + e.toString());
-                        responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND, "html/500.html", placeHolders);
+                        responseHandler.sendAssetFileWithPlaceHolder(ServerHelper.RESPONSE_CODE.NOT_FOUND,ServerHelper.CONTENT_TYPE.HTML, "html/500.html", placeHolders);
                     }
                 }
             } catch (IOException ex) {

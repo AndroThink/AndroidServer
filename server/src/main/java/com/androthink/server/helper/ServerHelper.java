@@ -1,19 +1,21 @@
 package com.androthink.server.helper;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Base64;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RawRes;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
@@ -22,9 +24,11 @@ public class ServerHelper {
 
     public static char API_VERSION = '1';
 
-    public void setApiVersion(char version){API_VERSION = version;}
+    public void setApiVersion(char version) {
+        API_VERSION = version;
+    }
 
-    public class MAIN_HEADERS{
+    public class MAIN_HEADERS {
         public static final String CONTENT_TYPE = "content-type";
         public static final String AUTHORIZATION = "authorization";
         public static final String CONTENT_LENGTH = "content-length";
@@ -33,14 +37,14 @@ public class ServerHelper {
         public static final String CONTENT_FORM_DATA_BOUNDARY = "boundary";
     }
 
-    public class METHOD{
+    public class METHOD {
         public static final String GET = "get";
         public static final String PUT = "put";
         public static final String POST = "post";
         public static final String DELETE = "delete";
     }
 
-    public class RESPONSE_CODE{
+    public class RESPONSE_CODE {
         public static final int OK = 200;
         public static final int BAD_REQUEST = 400;
         public static final int UNAUTHORIZED = 401;
@@ -64,48 +68,67 @@ public class ServerHelper {
         public static final String TEXT_JAVA_SCRIPT = "text/javascript";
         public static final String JAVA_SCRIPT = "application/javascript";
 
-        public static final String PNG  = "image/png";
-        public static final String GIF  = "image/gif";
+        public static final String PNG = "image/png";
+        public static final String GIF = "image/gif";
         public static final String JPEG = "image/jpeg";
 
         public static final String MPEG = "audio/mpeg";
     }
 
+    /**
+     * Load files from raw folder.
+     *
+     * @param filename filename of the file .
+     * @param isUTF8   is utf8 or not .
+     * @return byte[] value of File
+     * @throws java.io.IOException if error occurs
+     */
     @NonNull
-    public static byte[] getFileFromAssets(@NonNull Context context,String filename)throws IOException{
-        InputStream is = context.getAssets().open(filename);
-        return toBytes(is);
+    public static byte[] loadFileFromAsset(@NonNull Context context, String filename, boolean isUTF8) throws IOException {
+        return isUTF8 ? toUTF8Bytes(context.getAssets().open(filename)) : toBytes(context.getAssets().open(filename));
+    }
+
+    /**
+     * Load files from raw folder.
+     *
+     * @param rawId raw resource id of the file .
+     * @param isUTF8   is utf8 or not .
+     * @return byte[] value of File
+     * @throws java.io.IOException if error occurs
+     */
+    @NonNull
+    public static byte[] loadFileFromRaw(@NonNull Context context, @RawRes int rawId, boolean isUTF8) throws IOException {
+        return isUTF8 ? toUTF8Bytes(context.getResources().openRawResource(rawId)) : toBytes(context.getResources().openRawResource(rawId));
+    }
+
+    /**
+     * Load files from storage.
+     *
+     * @param filename which to be converted to string
+     * @param isUTF8   is utf8 or not .
+     * @return byte[] value of File
+     * @throws java.io.IOException if error occurs
+     */
+    @NonNull
+    public static byte[] loadFileAsBytes(String filename, boolean isUTF8) throws IOException {
+        return isUTF8 ? toUTF8Bytes(new FileInputStream(filename)) : toBytes(new FileInputStream(filename));
     }
 
     @NonNull
-    public static byte[] getFileFromRaw(@NonNull Context context,@RawRes int imageRawId) throws IOException{
-        InputStream image = context.getResources().openRawResource(imageRawId);
-        return toBytes(image);
-    }
-
-    @NonNull
-    public static String getHtmlFromAsset(@NonNull Context context,String filename) throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(context.getAssets().open(filename)));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            builder.append(line);
-        }
-
-        reader.close();
-        return builder.toString();
-    }
-
-    public static BufferedInputStream getResourceFromAsset(@NonNull Context context,String filename)throws IOException {
-       return new BufferedInputStream(context.getAssets().open(filename));
-    }
-
-    @NonNull
-    public static byte[] convertBitmapToByte(@NonNull Bitmap bitmap,int quality) {
+    public static byte[] convertBitmapToByte(@NonNull Bitmap bitmap, int quality) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
+    }
+
+    public static Bitmap convertByteToBitmap(byte[] imageByte) {
+        if (imageByte == null)
+            return null;
+        return BitmapFactory.decodeByteArray(imageByte, 0, imageByte.length);
+    }
+
+    public static Bitmap convertDrawableToBitmap(@NonNull Context context, @DrawableRes int drawableRes) throws Resources.NotFoundException {
+        return BitmapFactory.decodeResource(context.getResources(), drawableRes);
     }
 
     public static Bitmap resizedBitmap(@NonNull Bitmap bm, int newWidth, int newHeight) {
@@ -145,23 +168,60 @@ public class ServerHelper {
 
     @NonNull
     private static byte[] toBytes(@NonNull InputStream inputStream) throws IOException {
-        // this dynamically extends to take the bytes you read
+        final int bufferSize = 1024;
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
 
-        // this is storage overwritten on each iteration with bytes
-        int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
 
-        // we need to know how may bytes were read to write them to the byteBuffer
         int len;
         while ((len = inputStream.read(buffer)) != -1) {
             byteBuffer.write(buffer, 0, len);
         }
 
         inputStream.close();
-
-        // and then we can return your byte array.
         return byteBuffer.toByteArray();
+    }
+
+    @NonNull
+    private static byte[] toUTF8Bytes(@NonNull InputStream inputStream) throws IOException {
+        final int bufferSize = 1024;
+
+        BufferedInputStream is = new BufferedInputStream(inputStream, bufferSize);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(bufferSize);
+
+        byte[] bytes = new byte[bufferSize];
+        int read, count = 0;
+
+        while ((read = is.read(bytes)) != -1) {
+            if (count == 0 && bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
+                byteArrayOutputStream.write(bytes, 3, read - 3);
+            } else {
+                byteArrayOutputStream.write(bytes, 0, read);
+            }
+            count += read;
+        }
+
+        inputStream.close();
+        is.close();
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    /**
+     * Convert byte array to hex string
+     *
+     * @param bytes toConvert
+     * @return hexValue
+     */
+    @NonNull
+    public static String bytesToHex(@NonNull byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte aByte : bytes) {
+            int intVal = aByte & 0xff;
+            if (intVal < 0x10) result.append("0");
+            result.append(Integer.toHexString(intVal).toUpperCase());
+        }
+        return result.toString();
     }
 }
 

@@ -70,7 +70,7 @@ routes.add(new Route("/test",ServerHelper.METHOD.GET, true, new RouteCallBack() 
 routes.add(new Route("/html",ServerHelper.METHOD.GET, new RouteCallBack() {
     @Override
     public void onRequested(Request request, ResponseHandler responseHandler) {
-        responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.OK, "html/index.html");
+        responseHandler.sendAssetFile(ServerHelper.RESPONSE_CODE.OK,ServerHelper.CONTENT_TYPE.HTML, "html/index.html");
     }
 }));
 
@@ -83,7 +83,7 @@ routes.add(new Route("/htmlplaceholder",ServerHelper.METHOD.GET, new RouteCallBa
 
         Map<String, String> placeHolders = new HashMap<>();
         placeHolders.put("error_place_holder", "The text to be rendered");
-        responseHandler.sendHtmlFileResponse(ServerHelper.RESPONSE_CODE.NOT_FOUND,
+        responseHandler.sendAssetFileWithPlaceHolder(ServerHelper.RESPONSE_CODE.NOT_FOUND,ServerHelper.CONTENT_TYPE.HTML,
          "html/500.html", placeHolders);
     }
 }));
