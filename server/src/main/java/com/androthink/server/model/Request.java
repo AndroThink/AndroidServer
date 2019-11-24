@@ -13,14 +13,17 @@ public class Request {
     private String requestProtocol;
     private String requestRoutePath;
 
+    private String requestClientAddress;
+
     private final RequestCallBack requestCallBack;
 
     private Object requestPayload;
     private Map<String,String> requestHeaders;
     private Map<String,String> requestCookies;
 
-    public Request(String requestId,RequestCallBack callBack){
+    public Request(String requestId,String clientAddress,RequestCallBack callBack){
         this.requestId = requestId;
+        this.requestClientAddress = clientAddress;
         this.requestCallBack = callBack;
         this.requestHeaders = new HashMap<>();
         this.requestCookies = new HashMap<>();
@@ -36,10 +39,6 @@ public class Request {
 
     public String getRequestId() {
         return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
     }
 
     public String getMethod() {
@@ -65,6 +64,8 @@ public class Request {
     public void setRoutePath(String requestRoutePath) {
         this.requestRoutePath = requestRoutePath;
     }
+
+    public String getClientAddress() { return requestClientAddress; }
 
     public Object getPayload() {
         return requestPayload;

@@ -3,8 +3,11 @@ package com.androthink.server.core;
 import android.content.Context;
 import android.content.res.Resources;
 
+import androidx.annotation.NonNull;
+
 import com.androthink.server.callback.RequestCallBack;
 import com.androthink.server.handler.ResponseHandler;
+import com.androthink.server.helper.NetworkHelper;
 import com.androthink.server.helper.ServerHelper;
 import com.androthink.server.model.Request;
 
@@ -25,10 +28,10 @@ class ServerRequestThread extends Thread {
 
     private Request request;
 
-    ServerRequestThread(Context context, Socket socket, String requestId, RequestCallBack requestCallBack) {
+    ServerRequestThread(Context context, @NonNull Socket socket, String requestId, RequestCallBack requestCallBack) {
 
         this.context = context;
-        this.request = new Request(requestId, requestCallBack);
+        this.request = new Request(requestId, NetworkHelper.getIp(socket.getInetAddress(),true), requestCallBack);
         this.clientSocket = socket;
 
         start();

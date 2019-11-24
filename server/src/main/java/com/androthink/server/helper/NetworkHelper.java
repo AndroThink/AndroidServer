@@ -51,20 +51,27 @@ public class NetworkHelper {
             List<InetAddress> addressList = Collections.list(netInterface.getInetAddresses());
             for (InetAddress address : addressList) {
                 if (!address.isLoopbackAddress()) {
-                    String addressString = address.getHostAddress();
-                    boolean isIPv4 = addressString.indexOf(':') < 0;
-                    if (useIPv4) {
-                        if (isIPv4)
-                            return addressString;
-                    } else {
-                        if (!isIPv4) {
-                            int delim = addressString.indexOf('%'); // drop ip6 zone suffix
-                            return delim < 0 ? addressString.toUpperCase() : addressString.substring(0, delim).toUpperCase();
-                        }
-                    }
+                    return getIp(address,useIPv4);
                 }
             }
         }
+        return "";
+    }
+
+    public static String getIp(@NonNull InetAddress address,boolean useIPv4){
+        String addressString = address.getHostAddress();
+
+        boolean isIPv4 = addressString.indexOf(':') < 0;
+        if (useIPv4) {
+            if (isIPv4)
+                return addressString;
+        } else {
+            if (!isIPv4) {
+                int delim = addressString.indexOf('%'); // drop ip6 zone suffix
+                return delim < 0 ? addressString.toUpperCase() : addressString.substring(0, delim).toUpperCase();
+            }
+        }
+
         return "";
     }
 }

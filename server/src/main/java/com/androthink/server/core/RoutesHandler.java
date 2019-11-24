@@ -31,7 +31,7 @@ class RoutesHandler {
         this.routeList = new ArrayList<>();
     }
 
-    void Handle(Request request, ResponseHandler responseHandler) throws IOException {
+    void Handle(@NonNull Request request, ResponseHandler responseHandler) throws IOException {
 
         if (!isAllowedMethod(request.getMethod()))
             responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.METHOD_NOT_ALLOWED,
@@ -79,7 +79,28 @@ class RoutesHandler {
 
             Route startedWithRoute = getRouteWithStartWith(request.getMethod(), request.getRoutePath());
             if (startedWithRoute != null) {
-                startedWithRoute.getCallBack().onRequested(request, responseHandler);
+                if (startedWithRoute.isAuth()) {
+                    if (isApiRoute(request.getRoutePath())) {
+                        String authKey = getAuthorizationKey(request.getHeaders());
+                        if (authKey != null) {
+                            request.setApiKey(authKey);
+                            startedWithRoute.getCallBack().onRequested(request, responseHandler);
+                            return;
+                        }
+
+                        responseHandler.sendJsonResponse(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,
+                                "{\"status\":false,\"error\":\"Error 401 UnAuthorized !\"}");
+                    } else {
+                        String authKey = getAuthorizationToken(request.getRequestCookies());
+                        if (authKey != null) {
+                            request.setApiKey(authKey);
+                            startedWithRoute.getCallBack().onRequested(request, responseHandler);
+                        } else
+                            responseHandler.sendAssetFile(ServerHelper.RESPONSE_CODE.UNAUTHORIZED,ServerHelper.CONTENT_TYPE.HTML, "html/login.html");
+                    }
+                } else
+                    startedWithRoute.getCallBack().onRequested(request, responseHandler);
+
                 return;
             }
 
