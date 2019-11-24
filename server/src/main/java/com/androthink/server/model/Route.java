@@ -5,6 +5,7 @@ import com.androthink.server.callback.RouteCallBack;
 public class Route {
     private String path;
     private String method;
+    private String Description;
     private boolean isAuth;
     private boolean isRouteStartWith;
     private RouteCallBack callBack;
@@ -81,6 +82,14 @@ public class Route {
 
     public void setAuth(boolean auth) {
         isAuth = auth;
+    }
+
+    public String getDescription() {
+        return Description;
+    }
+
+    public void setDescription(String description) {
+        Description = description;
     }
 
     public RouteCallBack getCallBack() {
